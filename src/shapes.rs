@@ -159,7 +159,7 @@ pub fn compare_areas(shape1: &dyn Shape, shape2: &dyn Shape) -> std::cmp::Orderi
         .unwrap_or(std::cmp::Ordering::Equal)
 }
 
-// Find the largest shape from a collection of boxed trait objects
+// Find the largest shape from a collection of boxed trait objec
 pub fn find_largest_shape<'a>(
     shapes: &'a [Box<dyn Shape>],
 ) -> Option<&'a Box<dyn Shape>> {
