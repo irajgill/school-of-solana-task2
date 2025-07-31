@@ -1,204 +1,500 @@
 #[cfg(test)]
-mod tests {
-    use super::shapes::*;
-    use super::calculator::*;
-    use std::f64::consts::PI;
+mod calculator_tests {
+    use crate::calculator::*;
+    use rand::Rng;
 
-    // Shape tests
     #[test]
-    fn test_rectangle_creation_valid() {
-        let rect = Rectangle::new(5.0, 3.0).unwrap();
-        assert_eq!(rect.width(), 5.0);
-        assert_eq!(rect.height(), 3.0);
+    fn addition() {
+        let x_in: i64 = 1;
+        let y_in: i64 = 5;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.addition(x_in, y_in), x_in.checked_add(y_in));
+
+        let new_x_in: i64 = 8;
+        let new_y_in: i64 = 57;
+
+        assert_eq!(calculator.addition(new_x_in, new_y_in), new_x_in.checked_add(new_y_in));
     }
 
     #[test]
-    fn test_rectangle_creation_invalid() {
-        assert!(Rectangle::new(-1.0, 3.0).is_err());
-        assert!(Rectangle::new(5.0, 0.0).is_err());
-        assert!(Rectangle::new(0.0, 0.0).is_err());
+    fn subtraction() {
+        let x_in: i64 = 1;
+        let y_in: i64 = 5;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.subtraction(x_in, y_in), x_in.checked_sub(y_in));
+
+        let new_x_in: i64 = 13;
+        let new_y_in: i64 = 21;
+
+        assert_eq!(calculator.subtraction(new_x_in, new_y_in), new_x_in.checked_sub(new_y_in));
     }
 
     #[test]
-    fn test_rectangle_area_and_perimeter() {
-        let rect = Rectangle::new(4.0, 6.0).unwrap();
-        assert_eq!(rect.area(), 24.0);
-        assert_eq!(rect.perimeter(), 20.0);
+    fn multiplication() {
+        let x_in: i64 = 1;
+        let y_in: i64 = 5;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.multiplication(x_in, y_in), x_in.checked_mul(y_in));
+
+        let new_x_in: i64 = 2;
+        let new_y_in: i64 = 473;
+
+        assert_eq!(calculator.multiplication(new_x_in, new_y_in), new_x_in.checked_mul(new_y_in));
     }
 
     #[test]
-    fn test_rectangle_is_square() {
-        let square = Rectangle::new(5.0, 5.0).unwrap();
-        let rect = Rectangle::new(5.0, 3.0).unwrap();
-        assert!(square.is_square());
-        assert!(!rect.is_square());
+    fn overflow_add() {
+        let x_in: i64 = i64::MAX;
+        let y_in: i64 = 1;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.addition(x_in, y_in), None);
     }
 
     #[test]
-    fn test_circle_creation_valid() {
-        let circle = Circle::new(3.0).unwrap();
-        assert_eq!(circle.radius(), 3.0);
-        assert_eq!(circle.diameter(), 6.0);
+    fn overflow_sub() {
+        let x_in: i64 = i64::MIN;
+        let y_in: i64 = 1;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.subtraction(x_in, y_in), None);
     }
 
     #[test]
-    fn test_circle_creation_invalid() {
-        assert!(Circle::new(-1.0).is_err());
-        assert!(Circle::new(0.0).is_err());
+    fn overflow_mul() {
+        let x_in: i64 = i64::MAX / 2 + 1;
+        let y_in: i64 = 2;
+        let mut calculator = Calculator::new();
+
+        assert_eq!(calculator.multiplication(x_in, y_in), None);
     }
 
     #[test]
-    fn test_circle_area_and_perimeter() {
-        let circle = Circle::new(2.0).unwrap();
-        let expected_area = PI * 4.0;
-        let expected_perimeter = 2.0 * PI * 2.0;
-        
-        assert!((circle.area() - expected_area).abs() < 1e-10);
-        assert!((circle.perimeter() - expected_perimeter).abs() < 1e-10);
-    }
+    fn random_inputs_calculator() {
+        let mut rng = rand::thread_rng();
+        for _ in 0..50_000 {
+            let x_in = rng.gen::<i64>();
+            let y_in = rng.gen::<i64>();
 
-    #[test]
-    fn test_shape_scaling() {
-        let mut rect = Rectangle::new(2.0, 3.0).unwrap();
-        let mut circle = Circle::new(2.0).unwrap();
-        
-        assert!(rect.scale(2.0).is_ok());
-        assert_eq!(rect.width(), 4.0);
-        assert_eq!(rect.height(), 6.0);
-        
-        assert!(circle.scale(1.5).is_ok());
-        assert_eq!(circle.radius(), 3.0);
-        
-        assert!(rect.scale(-1.0).is_err());
-        assert!(circle.scale(0.0).is_err());
-    }
-
-    // Calculator tests
-    #[test]
-    fn test_calculator_basic_operations() {
-        let mut calc = Calculator::new();
-        calc.set_value(10.0);
-        
-        assert_eq!(calc.add(5.0).unwrap(), 15.0);
-        assert_eq!(calc.subtract(3.0).unwrap(), 12.0);
-        assert_eq!(calc.multiply(2.0).unwrap(), 24.0);
-        assert_eq!(calc.divide(4.0).unwrap(), 6.0);
-    }
-
-    #[test]
-    fn test_calculator_division_by_zero() {
-        let mut calc = Calculator::new();
-        calc.set_value(10.0);
-        
-        match calc.divide(0.0) {
-            Err(CalculatorError::DivisionByZero) => {}
-            _ => panic!("Expected DivisionByZero error"),
+            let mut calculator = Calculator::new();
+            assert_eq!(calculator.addition(x_in, y_in), x_in.checked_add(y_in));
+            assert_eq!(calculator.subtraction(x_in, y_in), x_in.checked_sub(y_in));
+            assert_eq!(calculator.multiplication(x_in, y_in), x_in.checked_mul(y_in));
         }
     }
 
     #[test]
-    fn test_calculator_power_and_modulo() {
-        let mut calc = Calculator::new();
-        calc.set_value(3.0);
-        
-        assert_eq!(calc.power(3.0).unwrap(), 27.0);
-        assert_eq!(calc.modulo(5.0).unwrap(), 2.0);
+    fn operation_type_get_sign() {
+        assert_eq!(OperationType::Addition.get_sign(), "+");
+        assert_eq!(OperationType::Subtraction.get_sign(), "-");
+        assert_eq!(OperationType::Multiplication.get_sign(), "*");
     }
 
     #[test]
-    fn test_calculator_operation_enum() {
-        let mut calc = Calculator::new();
-        calc.set_value(8.0);
-        
-        assert_eq!(calc.perform_operation(Operation::Add, 2.0).unwrap(), 10.0);
-        assert_eq!(calc.perform_operation(Operation::Multiply, 3.0).unwrap(), 30.0);
-        assert_eq!(calc.perform_operation(Operation::Divide, 6.0).unwrap(), 5.0);
+    fn operation_type_perform() {
+        // Test normal operations
+        assert_eq!(OperationType::Addition.perform(5, 3), Some(8));
+        assert_eq!(OperationType::Subtraction.perform(5, 3), Some(2));
+        assert_eq!(OperationType::Multiplication.perform(5, 3), Some(15));
+
+        // Test with negative numbers
+        assert_eq!(OperationType::Addition.perform(-5, 3), Some(-2));
+        assert_eq!(OperationType::Subtraction.perform(-5, 3), Some(-8));
+        assert_eq!(OperationType::Multiplication.perform(-5, 3), Some(-15));
+
+        // Test with zero
+        assert_eq!(OperationType::Addition.perform(0, 5), Some(5));
+        assert_eq!(OperationType::Subtraction.perform(0, 5), Some(-5));
+        assert_eq!(OperationType::Multiplication.perform(0, 5), Some(0));
+
+        // Test overflow cases
+        assert_eq!(OperationType::Addition.perform(i64::MAX, 1), None);
+        assert_eq!(OperationType::Subtraction.perform(i64::MIN, 1), None);
+        assert_eq!(OperationType::Multiplication.perform(i64::MAX / 2 + 1, 2), None);
     }
 
     #[test]
-    fn test_calculator_history() {
-        let mut calc = Calculator::new();
-        calc.set_value(5.0);
-        
-        calc.add(3.0).unwrap();
-        calc.multiply(2.0).unwrap();
-        
-        assert_eq!(calc.history_size(), 2);
-        assert_eq!(calc.last_result().unwrap(), 16.0);
-        
-        let history = calc.get_history();
-        assert_eq!(history[0].result, 8.0);
-        assert_eq!(history[1].result, 16.0);
+    fn operation_creation() {
+        let op = Operation::new(10, 5, OperationType::Addition);
+        assert_eq!(op.first_num, 10);
+        assert_eq!(op.second_num, 5);
+        assert_eq!(op.operation_type.get_sign(), "+");
     }
 
     #[test]
-    fn test_calculator_undo() {
-        let mut calc = Calculator::new();
-        calc.set_value(10.0);
-        
-        calc.add(5.0).unwrap();
-        assert_eq!(calc.current_value(), 15.0);
-        
-        calc.undo().unwrap();
-        assert_eq!(calc.current_value(), 10.0);
-        assert_eq!(calc.history_size(), 0);
+    fn show_history_empty() {
+        let calculator = Calculator::new();
+        assert_eq!(calculator.show_history(), "");
     }
 
     #[test]
-    fn test_calculator_clear() {
-        let mut calc = Calculator::new();
-        calc.set_value(42.0);
-        calc.add(8.0).unwrap();
+    fn show_history_single_operation() {
+        let mut calculator = Calculator::new();
+        calculator.addition(5, 3);
         
-        calc.clear();
-        assert_eq!(calc.current_value(), 0.0);
-        
-        calc.clear_history();
-        assert_eq!(calc.history_size(), 0);
+        let history = calculator.show_history();
+        assert_eq!(history, "0: 5 + 3 = 8\n");
     }
 
     #[test]
-    fn test_calculator_overflow_handling() {
-        let mut calc = Calculator::new();
-        calc.set_value(f64::MAX);
+    fn show_history_multiple_operations() {
+        let mut calculator = Calculator::new();
+        calculator.addition(10, 5);
+        calculator.subtraction(20, 8);
+        calculator.multiplication(3, 4);
         
-        match calc.add(f64::MAX) {
-            Err(CalculatorError::Overflow) => {}
-            _ => panic!("Expected Overflow error"),
+        let history = calculator.show_history();
+        let expected = "0: 10 + 5 = 15\n1: 20 - 8 = 12\n2: 3 * 4 = 12\n";
+        assert_eq!(history, expected);
+    }
+
+    #[test]
+    fn repeat_valid_operation() {
+        let mut calculator = Calculator::new();
+        calculator.addition(7, 3);
+        calculator.subtraction(15, 5);
+        
+        // Repeat the first operation (addition)
+        let result = calculator.repeat(0);
+        assert_eq!(result, Some(10));
+        
+        // Check that it was added to history
+        let history = calculator.show_history();
+        let expected = "0: 7 + 3 = 10\n1: 15 - 5 = 10\n2: 7 + 3 = 10\n";
+        assert_eq!(history, expected);
+    }
+
+    #[test]
+    fn repeat_invalid_index() {
+        let mut calculator = Calculator::new();
+        calculator.addition(5, 2);
+        
+        // Try to repeat operation at index 5 (doesn't exist)
+        let result = calculator.repeat(5);
+        assert_eq!(result, None);
+        
+        // History should remain unchanged
+        let history = calculator.show_history();
+        assert_eq!(history, "0: 5 + 2 = 7\n");
+    }
+
+    #[test]
+    fn repeat_from_empty_history() {
+        let mut calculator = Calculator::new();
+        
+        // Try to repeat when no operations exist
+        let result = calculator.repeat(0);
+        assert_eq!(result, None);
+        
+        // History should still be empty
+        assert_eq!(calculator.show_history(), "");
+    }
+
+    #[test]
+    fn clear_history_empty() {
+        let mut calculator = Calculator::new();
+        calculator.clear_history();
+        assert_eq!(calculator.show_history(), "");
+    }
+
+    #[test]
+    fn clear_history_with_operations() {
+        let mut calculator = Calculator::new();
+        calculator.addition(1, 2);
+        calculator.subtraction(10, 5);
+        calculator.multiplication(3, 3);
+        
+        // Verify history exists
+        assert!(!calculator.show_history().is_empty());
+        
+        // Clear history
+        calculator.clear_history();
+        assert_eq!(calculator.show_history(), "");
+        
+        // Verify repeat doesn't work after clearing
+        assert_eq!(calculator.repeat(0), None);
+    }
+
+    #[test]
+    fn calculator_workflow_integration() {
+        let mut calculator = Calculator::new();
+        
+        // Perform some operations
+        calculator.addition(10, 5);
+        calculator.multiplication(3, 4);
+        
+        // Repeat first operation
+        calculator.repeat(0);
+        
+        // Check complete history
+        let history = calculator.show_history();
+        let expected = "0: 10 + 5 = 15\n1: 3 * 4 = 12\n2: 10 + 5 = 15\n";
+        assert_eq!(history, expected);
+        
+        // Clear and verify
+        calculator.clear_history();
+        assert_eq!(calculator.show_history(), "");
+        
+        // Add new operation after clearing
+        calculator.subtraction(20, 7);
+        assert_eq!(calculator.show_history(), "0: 20 - 7 = 13\n");
+    }
+}
+
+#[cfg(test)]
+mod shapes_tests {
+    use crate::shapes::*;
+    use float_cmp::{assert_approx_eq, F64Margin};
+    use rand::Rng;
+
+    // default margin
+    const MARGIN: F64Margin = F64Margin {
+        epsilon: f64::EPSILON,
+        ulps: 4,
+    };
+
+    macro_rules! perimeter {
+        // if one argument it is circumference for circle
+        ($radius:ident) => {
+            2.0 * $radius * std::f64::consts::PI
+        };
+        // if two arguments it is perimeter for rectangle
+        ($a:ident,$b:ident) => {
+            2.0 * $a + 2.0 * $b
+        };
+    }
+
+    macro_rules! area {
+        // if one argument it is area for circle
+        ($radius:ident) => {
+            $radius * $radius * std::f64::consts::PI
+        };
+        // if two arguments it is area for rectangle
+        ($a:ident,$b:ident) => {
+            $a * $b
+        };
+    }
+
+    #[test]
+    fn rectangle_area() {
+        let width_in: f64 = 15.0;
+        let height_in: f64 = 7.0;
+        let rectangle = Rectangle::new(width_in, height_in).unwrap();
+
+        let computed_area = rectangle.area();
+        let reference_area = area!(width_in, height_in);
+
+        assert_eq!(computed_area, reference_area);
+    }
+
+    #[test]
+    fn rectangle_wrong_input() {
+        let width_in: f64 = 5.0;
+        let height_in: f64 = 7.0;
+        let mut rectangle = Rectangle::new(width_in, height_in).unwrap();
+
+        let new_width_in: f64 = -5.0;
+        let res = rectangle.set_width(new_width_in);
+
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn rectangle_area_with_set() {
+        let width_in: f64 = 51.0;
+        let height_in: f64 = 23.0;
+        let mut rectangle = Rectangle::new(width_in, height_in).unwrap();
+
+        let computed_area = rectangle.area();
+        let reference_area = area!(width_in, height_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+
+        let new_width_in: f64 = 8.0;
+        let res = rectangle.set_width(new_width_in);
+        assert!(res.is_ok());
+
+        let computed_area = rectangle.area();
+        let reference_area = area!(new_width_in, height_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+
+        let new_height_in: f64 = 5.0;
+        let res = rectangle.set_height(new_height_in);
+        assert!(res.is_ok());
+
+        let computed_area = rectangle.area();
+        let reference_area = area!(new_width_in, new_height_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+    }
+
+    #[test]
+    fn circle_area() {
+        let r_in: f64 = 4.0;
+        let circle = Circle::new(r_in).unwrap();
+
+        let computed_area = circle.area();
+        let reference_area = area!(r_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+    }
+
+    #[test]
+    fn circle_wrong_input() {
+        let r_in: f64 = 5.0;
+        let mut circle = Circle::new(r_in).unwrap();
+
+        let new_r_in: f64 = -5.0;
+        let res = circle.set_radius(new_r_in);
+
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn circle_area_with_set() {
+        let r_in: f64 = 17.0;
+        let mut circle = Circle::new(r_in).unwrap();
+
+        let computed_area = circle.area();
+        let reference_area = area!(r_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+
+        let new_r_in: f64 = 8.0;
+        let res = circle.set_radius(new_r_in);
+
+        assert!(res.is_ok());
+
+        let computed_area = circle.area();
+        let reference_area = area!(new_r_in);
+
+        assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+    }
+
+    #[test]
+    fn rectangle_circumference() {
+        let width_in: f64 = 15.0;
+        let height_in: f64 = 7.0;
+        let rectangle = Rectangle::new(width_in, height_in).unwrap();
+
+        let computed_circ = rectangle.perimeter();
+        let reference_circ = perimeter!(width_in, height_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+    }
+
+    #[test]
+    fn rectangle_perimeter_with_set() {
+        let width_in: f64 = 584.0;
+        let height_in: f64 = 1287.0;
+        let mut rectangle = Rectangle::new(width_in, height_in).unwrap();
+
+        let computed_circ = rectangle.perimeter();
+        let reference_circ = perimeter!(width_in, height_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+
+        let new_width_in: f64 = 8.0;
+        let res = rectangle.set_width(new_width_in);
+        assert!(res.is_ok());
+
+        let computed_circ = rectangle.perimeter();
+        let reference_circ = perimeter!(new_width_in, height_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+
+        let new_height_in: f64 = 8.0;
+        let res = rectangle.set_height(new_height_in);
+        assert!(res.is_ok());
+
+        let computed_circ = rectangle.perimeter();
+        let reference_circ = perimeter!(new_width_in, new_height_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+    }
+
+    #[test]
+    fn circle_perimeter() {
+        let r_in: f64 = 7.0;
+        let circle = Circle::new(r_in).unwrap();
+
+        let computed_circ = circle.perimeter();
+        let reference_circ = perimeter!(r_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+    }
+
+    #[test]
+    fn circle_perimeter_with_set() {
+        let r_in: f64 = 3.0;
+        let mut circle = Circle::new(r_in).unwrap();
+
+        let computed_circ = circle.perimeter();
+        let reference_circ = perimeter!(r_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+
+        let new_r_in: f64 = 8.0;
+        let res = circle.set_radius(new_r_in);
+        assert!(res.is_ok());
+
+        let computed_circ = circle.perimeter();
+        let reference_circ = perimeter!(new_r_in);
+
+        assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+    }
+
+    #[test]
+    fn random_inputs_shapes() {
+        let mut rng = rand::thread_rng();
+        for _ in 0..50_000 {
+            let a_sign = if rng.gen::<bool>() { 1.0 } else { -1.0 };
+            let a_magnitude: f64 = rng.gen::<f64>();
+            let width_in = a_sign * a_magnitude * f32::MAX as f64;
+
+            let b_sign = if rng.gen::<bool>() { 1.0 } else { -1.0 };
+            let b_magnitude: f64 = rng.gen::<f64>();
+            let height_in = b_sign * b_magnitude * f32::MAX as f64;
+
+            let r_sign = if rng.gen::<bool>() { 1.0 } else { -1.0 };
+            let r_magnitude: f64 = rng.gen::<f64>();
+            let r_in = r_sign * r_magnitude * f32::MAX as f64;
+
+            let circle = Circle::new(r_in);
+            let rectangle = Rectangle::new(width_in, height_in);
+
+            if r_in < 0.0 {
+                assert!(circle.is_err());
+            } else {
+                let circle = circle.unwrap();
+
+                let computed_circ = circle.perimeter();
+                let computed_area = circle.area();
+
+                let reference_circ = perimeter!(r_in);
+                let reference_area = area!(r_in);
+
+                assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+                assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+            }
+
+            if width_in < 0.0 || height_in < 0.0 {
+                assert!(rectangle.is_err());
+            } else {
+                let rectangle = rectangle.unwrap();
+                let computed_circ = rectangle.perimeter();
+                let computed_area = rectangle.area();
+
+                let reference_circ = perimeter!(width_in, height_in);
+                let reference_area = area!(width_in, height_in);
+
+                assert_approx_eq!(f64, computed_circ, reference_circ, MARGIN);
+                assert_approx_eq!(f64, computed_area, reference_area, MARGIN);
+            }
         }
-    }
-
-    #[test]
-    fn test_simple_calculator_function() {
-        assert_eq!(calculate_simple(5.0, Operation::Add, 3.0).unwrap(), 8.0);
-        assert_eq!(calculate_simple(10.0, Operation::Subtract, 4.0).unwrap(), 6.0);
-        assert_eq!(calculate_simple(6.0, Operation::Multiply, 7.0).unwrap(), 42.0);
-        assert_eq!(calculate_simple(15.0, Operation::Divide, 3.0).unwrap(), 5.0);
-        
-        match calculate_simple(10.0, Operation::Divide, 0.0) {
-            Err(CalculatorError::DivisionByZero) => {}
-            _ => panic!("Expected DivisionByZero error"),
-        }
-    }
-
-    #[test]
-    fn test_shape_comparison() {
-        let rect = Rectangle::new(4.0, 3.0).unwrap();
-        let circle = Circle::new(2.0).unwrap();
-        
-        // Rectangle area: 12, Circle area: π * 4 ≈ 12.57
-        assert_eq!(compare_areas(&rect, &circle), std::cmp::Ordering::Less);
-    }
-
-    #[test]
-    fn test_find_largest_shape() {
-        let shapes: Vec<Box<dyn Shape>> = vec![
-            Box::new(Rectangle::new(2.0, 3.0).unwrap()), // area: 6
-            Box::new(Circle::new(2.0).unwrap()),          // area: ~12.57
-            Box::new(Rectangle::new(5.0, 1.0).unwrap()), // area: 5
-        ];
-        
-        let largest = find_largest_shape(&shapes).unwrap();
-        assert_eq!(largest.name(), "Circle");
     }
 }
